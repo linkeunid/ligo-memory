@@ -2,7 +2,7 @@ module github.com/linkeunid/ligo-memory
 
 go 1.25.9
 
-require github.com/linkeunid/ligo v0.0.0-00010101000000-000000000000
+require github.com/linkeunid/ligo v0.1.0
 
 require (
 	github.com/gabriel-vasile/mimetype v1.4.13 // indirect
@@ -15,5 +15,3 @@ require (
 	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/text v0.35.0 // indirect
 )
-
-replace github.com/linkeunid/ligo => /home/haniv/Development/work/linkeunid/dev/fw/ligo
