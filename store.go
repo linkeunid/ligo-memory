@@ -7,11 +7,9 @@ import "sync"
 
 // Store is a generic, thread-safe in-memory key-value store.
 //
-// K must be a comparable type (e.g. string, int, uuid).
+// K must be a comparable type (e.g. string, int, UUID alias).
 // V can be any type, typically a pointer to a domain entity.
-//
-// All methods are safe for concurrent use: reads hold a shared [sync.RWMutex]
-// lock, writes hold an exclusive lock.
+// All methods are safe for concurrent use.
 //
 // Example:
 //
@@ -55,11 +53,9 @@ func (s *Store[K, V]) Set(key K, value V) {
 func (s *Store[K, V]) Delete(key K) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if _, ok := s.data[key]; !ok {
-		return false
-	}
+	_, ok := s.data[key]
 	delete(s.data, key)
-	return true
+	return ok
 }
 
 // All returns a snapshot of all stored values as a slice.
@@ -97,5 +93,5 @@ func (s *Store[K, V]) Len() int {
 func (s *Store[K, V]) Clear() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.data = make(map[K]V)
+	clear(s.data)
 }

@@ -16,28 +16,37 @@ type userFixture struct {
 	Name string
 }
 
-// TestModuleIntegratesWithApp verifies that memory.Module() registers
-// successfully in a Ligo app and exposes *Store[string, any] in the DI
-// container.
-func TestModuleIntegratesWithApp(t *testing.T) {
+func startApp(t *testing.T, modules ...ligo.Module) *ligo.App {
+	t.Helper()
 	app := ligo.New(
 		ligo.WithRouter(echo.NewAdapter()),
 		ligo.WithAddr(":0"),
 	)
-	app.Register(memory.Module())
-
-	done := make(chan error, 1)
-	go func() { done <- app.Run() }()
+	app.Register(modules...)
+	go func() { _ = app.Run() }()
 	time.Sleep(200 * time.Millisecond)
+	return app
+}
 
-	types := app.Container().Types()
-	want := reflect.TypeFor[*memory.Store[string, any]]()
+func containsType(types []reflect.Type, want reflect.Type) bool {
 	for _, typ := range types {
 		if typ == want {
-			return
+			return true
 		}
 	}
-	t.Fatalf("*Store[string, any] not found in DI container; registered types: %v", types)
+	return false
+}
+
+// TestModuleIntegratesWithApp verifies that memory.Module() registers
+// successfully in a Ligo app and exposes *Store[string, any] in the DI
+// container.
+func TestModuleIntegratesWithApp(t *testing.T) {
+	app := startApp(t, memory.Module())
+
+	want := reflect.TypeFor[*memory.Store[string, any]]()
+	if !containsType(app.Container().Types(), want) {
+		t.Fatalf("*Store[string, any] not found in DI container; registered types: %v", app.Container().Types())
+	}
 }
 
 // TestProviderInjectsTypedStore verifies that Provider[K, V]() registers a
@@ -50,38 +59,19 @@ func TestProviderInjectsTypedStore(t *testing.T) {
 		ligo.Providers(
 			memory.Provider[string, *userFixture](),
 			ligo.Factory[*userFixture](func(s *memory.Store[string, *userFixture]) *userFixture {
-				injected = s // capture the injected store
+				injected = s
 				return &userFixture{}
 			}),
 		),
 	)
+	app := startApp(t, mod)
 
-	app := ligo.New(
-		ligo.WithRouter(echo.NewAdapter()),
-		ligo.WithAddr(":0"),
-	)
-	app.Register(mod)
-
-	done := make(chan error, 1)
-	go func() { done <- app.Run() }()
-	time.Sleep(200 * time.Millisecond)
-
-	// Verify *Store[string, *userFixture] is registered in the container.
-	types := app.Container().Types()
 	want := reflect.TypeFor[*memory.Store[string, *userFixture]]()
-	found := false
-	for _, typ := range types {
-		if typ == want {
-			found = true
-			break
-		}
-	}
-	if !found {
-		t.Fatalf("*Store[string, *userFixture] not found in DI container; registered types: %v", types)
+	if !containsType(app.Container().Types(), want) {
+		t.Fatalf("*Store[string, *userFixture] not found in DI container; registered types: %v", app.Container().Types())
 	}
 
-	// If the factory was resolved (eager or via a prior request), also
-	// verify the injected store is functional.
+	// If the factory was resolved, verify the injected store is functional.
 	if injected != nil {
 		injected.Set("u1", &userFixture{ID: "u1", Name: "Alice"})
 		u, ok := injected.Get("u1")

@@ -45,4 +45,4 @@ app.Register(memory.Module(), myModule())
 
 ## See also
 
-- [Store API & patterns → docs/features/store.md](docs/features/store.md)
+- [Store API & patterns](docs/features/store.md)

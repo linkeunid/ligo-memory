@@ -30,11 +30,15 @@ func TestModuleName(t *testing.T) {
 	}
 }
 
-func TestModuleHasOneProvider(t *testing.T) {
+func TestModuleRegistersStringAnyStore(t *testing.T) {
 	m := Module()
-	if len(m.Providers) != 1 {
-		t.Fatalf("expected 1 provider in Module, got %d", len(m.Providers))
+	want := reflect.TypeFor[*Store[string, any]]()
+	for _, raw := range m.Providers {
+		if p, ok := raw.(ligo.Provider); ok && p.Type() == want {
+			return
+		}
 	}
+	t.Fatalf("Module must register *Store[string, any]; providers: %v", m.Providers)
 }
 
 func TestModuleProviderType(t *testing.T) {
