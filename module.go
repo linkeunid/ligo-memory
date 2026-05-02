@@ -37,7 +37,7 @@ func Provider[K comparable, V any]() ligo.Provider {
 //
 //	app.Register(memory.Module(), myModule())
 func Module() ligo.Module {
-	return ligo.NewModule("memory",
+	return ligo.NewModule("ligo-memory",
 		ligo.Providers(
 			Provider[string, any](),
 		),
