@@ -6,8 +6,9 @@ import (
 	"time"
 
 	"github.com/linkeunid/ligo"
-	memory "github.com/linkeunid/ligo-memory"
 	"github.com/linkeunid/ligo/adapters/echo"
+
+	memory "github.com/linkeunid/ligo-memory"
 )
 
 // userFixture is a minimal domain entity used only in tests.
