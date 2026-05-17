@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/linkeunid/ligo"
-	"github.com/linkeunid/ligo/adapters/echo"
 	memory "github.com/linkeunid/ligo-memory"
+	"github.com/linkeunid/ligo/adapters/echo"
 )
 
 // userFixture is a minimal domain entity used only in tests.
@@ -55,7 +55,8 @@ func TestModuleIntegratesWithApp(t *testing.T) {
 func TestProviderInjectsTypedStore(t *testing.T) {
 	var injected *memory.Store[string, *userFixture]
 
-	mod := ligo.NewModule("test",
+	mod := ligo.NewModule(
+		"test",
 		ligo.Providers(
 			memory.Provider[string, *userFixture](),
 			ligo.Factory[*userFixture](func(s *memory.Store[string, *userFixture]) *userFixture {
