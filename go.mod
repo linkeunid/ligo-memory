@@ -2,7 +2,7 @@ module github.com/linkeunid/ligo-memory
 
 go 1.25.10
 
-require github.com/linkeunid/ligo v0.9.4
+require github.com/linkeunid/ligo v0.9.6
 
 require (
 	github.com/gabriel-vasile/mimetype v1.4.13 // indirect
